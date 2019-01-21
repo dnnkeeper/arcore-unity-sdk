@@ -67,7 +67,9 @@ namespace GoogleARCore
             Disable();
         }
 
-        private void Update()
+        Matrix4x4 prjMat;
+
+        private void LateUpdate()
         {
             if (BackgroundMaterial == null)
             {
@@ -92,11 +94,15 @@ namespace GoogleARCore
             BackgroundMaterial.SetVector(bottomLeftRightVar,
                 new Vector4(uvQuad.BottomLeft.x, uvQuad.BottomLeft.y, uvQuad.BottomRight.x, uvQuad.BottomRight.y));
 
-            var prjMat = Frame.CameraImage.GetCameraProjectionMatrix(
+            //m_Camera.projectionMatrix = Frame.CameraImage.GetCameraProjectionMatrix(
+            //    m_Camera.nearClipPlane, m_Camera.farClipPlane);
+
+            prjMat = Frame.CameraImage.GetCameraProjectionMatrix(
                 m_Camera.nearClipPlane, m_Camera.farClipPlane);
 
-            //Set camera FOV instead of setting camera projection matrix so other visual effects such as Post-Processing stack won't break 
-            m_Camera.fieldOfView = Mathf.Atan(1 / prjMat[5]) * 2f * Mathf.Rad2Deg;
+            //var frustum = prjMat.decomposeProjection;
+            var fov_y = Mathf.Atan(1 / prjMat[5]) * 2f * Mathf.Rad2Deg;
+            m_Camera.fieldOfView = fov_y;// Vector3.Angle(Vector3.forward, new Vector3(frustum.right, 0, frustum.zFar)) * 2f;
         }
 
         private void Disable()
@@ -106,6 +112,12 @@ namespace GoogleARCore
                 m_BackgroundRenderer.mode = ARRenderMode.StandardBackground;
                 m_BackgroundRenderer.camera = null;
             }
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.Space(100f);
+            GUILayout.Label("fov_y: "+ Mathf.Atan(1 / prjMat[5]) * 2f * Mathf.Rad2Deg);
         }
     }
 }

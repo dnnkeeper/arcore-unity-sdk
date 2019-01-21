@@ -65,6 +65,11 @@ namespace GoogleARCore.Examples.Common
 
         private MeshRenderer m_MeshRenderer;
 
+        public DetectedPlane GetDetectedPlane()
+        {
+            return m_DetectedPlane;
+        }
+
         /// <summary>
         /// The Unity Awake() method.
         /// </summary>
