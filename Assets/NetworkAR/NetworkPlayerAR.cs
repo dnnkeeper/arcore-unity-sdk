@@ -9,6 +9,7 @@ using System.IO;
 
 public struct PlaneInfo
 {
+    public int hashcode;
     public Vector3 pos;
     public Quaternion rot;
     public Vector3[] vertices;
@@ -83,6 +84,7 @@ public class PlaneInfoMessage : MessageBase
 
     public override void Serialize(NetworkWriter writer)
     {
+        writer.Write(info.hashcode);
         writer.Write(info.pos);
         writer.Write(info.rot);
 
@@ -102,6 +104,7 @@ public class PlaneInfoMessage : MessageBase
 
     public override void Deserialize(NetworkReader reader)
     {
+        info.hashcode = reader.ReadInt32();
         info.pos = reader.ReadVector3();//ZeroFormatterSerializer.Deserialize<Vector3>(reader.ReadBytesAndSize());
         info.rot = reader.ReadQuaternion();//ZeroFormatterSerializer.Deserialize<Quaternion>(reader.ReadBytesAndSize());
         byte[] conversionArray = reader.ReadBytesAndSize();//ZeroFormatterSerializer.Deserialize<List<Vector3>>(reader.ReadBytesAndSize());
@@ -181,27 +184,31 @@ public class NetworkPlayerAR : NetworkPlayerReplicator
 
     public Material planeMaterial;
 
-    Dictionary<Vector3, DetectedPlaneReplicator> replicatedPlanes = new Dictionary<Vector3, DetectedPlaneReplicator>();
+    Dictionary<int, DetectedPlaneReplicator> replicatedPlanes = new Dictionary<int, DetectedPlaneReplicator>();
 
     [Command]
     public void CmdSendPlane(PlaneInfoMessage planeInfo)
         //Vector3 pos, Quaternion rot, List<Vector3> newVerts)
     {
-        if (replicatedPlanes.TryGetValue( (planeInfo.info.pos), out DetectedPlaneReplicator plane))
+        if (replicatedPlanes.TryGetValue( planeInfo.info.hashcode, out DetectedPlaneReplicator plane))
         {
             Debug.Log("Updating existing plane");
             //plane.CreateMesh(pos, rot, newVerts);
         }
         else
         {
-            Debug.Log("Creating new plane with "+ planeInfo.info.vertices.Length);
+            Debug.Log("Creating new plane with "+ planeInfo.info.vertices.Length+" hash:" + planeInfo.info.hashcode);
             var newGO = new GameObject("NewPlane", typeof(MeshFilter), typeof(DetectedPlaneReplicator), typeof(MeshRenderer));
+            newGO.transform.SetPositionAndRotation(offsetTransform.position, offsetTransform.rotation);
             newGO.transform.parent = offsetTransform;
+            //newGO.transform.localPosition = planeInfo.info.pos;
+            //newGO.transform.localRotation = planeInfo.info.rot;
             plane = newGO.GetComponent<DetectedPlaneReplicator>();
             var meshRend = newGO.GetComponent<MeshRenderer>();
             meshRend.material = planeMaterial;
+            replicatedPlanes.Add(planeInfo.info.hashcode, plane);
         }
-        plane.CreateMesh((planeInfo.info.pos),  (planeInfo.info.rot),  new List<Vector3>(planeInfo.info.vertices));
+        plane.CreateMesh( (planeInfo.info.pos),  (planeInfo.info.rot),  new List<Vector3>(planeInfo.info.vertices));
     }
 
 }

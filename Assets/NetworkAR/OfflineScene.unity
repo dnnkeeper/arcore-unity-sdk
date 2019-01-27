@@ -161,7 +161,7 @@ MonoBehaviour:
   m_NetworkPort: 7777
   m_ServerBindToIP: 0
   m_ServerBindAddress: 
-  m_NetworkAddress: 192.168.22.105
+  m_NetworkAddress: 192.168.22.104
   m_DontDestroyOnLoad: 1
   m_RunInBackground: 1
   m_ScriptCRCCheck: 1
@@ -254,6 +254,7 @@ GameObject:
   - component: {fileID: 1414839266}
   - component: {fileID: 1414839265}
   - component: {fileID: 1414839264}
+  - component: {fileID: 1414839267}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -325,6 +326,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1414839267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1414839263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f699ea72e1b1324792805f62f32353b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxWidth: 1280
 --- !u!1 &1574970997
 GameObject:
   m_ObjectHideFlags: 0

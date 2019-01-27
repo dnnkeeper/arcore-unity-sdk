@@ -11,3 +11,5 @@ obj/
 *.userprefs
 # OS generated
 .DS_Store
+.gradle/
+.vs/

@@ -96,22 +96,21 @@ public class DetectedPlaneReplicator : MonoBehaviour
             NetworkPlayerAR player = transform.GetComponentInParent<NetworkPlayerAR>();
             if (player != null)
             {
-                Debug.Log("Send Message with "+ m_DetectedPlane); 
-                var newMessage = new PlaneInfoMessage { info = new PlaneInfo { pos = m_DetectedPlane.CenterPose.position, rot =  (m_DetectedPlane.CenterPose.rotation), vertices = ( m_MeshVertices.ToArray()) } };
+                
+                Debug.Log("Send Message with "+ m_DetectedPlane);
+                var newMessage = new PlaneInfoMessage { info = new PlaneInfo { hashcode = m_DetectedPlane.GetHashCode(), pos = m_DetectedPlane.CenterPose.position, rot =  (m_DetectedPlane.CenterPose.rotation), vertices = ( m_MeshVertices.ToArray()) } };
                 player.CmdSendPlane(newMessage);
                     //m_DetectedPlane.CenterPose.position, m_DetectedPlane.CenterPose.rotation, m_MeshVertices);
             }   
         }
     }
-
+    
     public void CreateMesh(Vector3 planeCenter, Quaternion planeRotation, List<Vector3> newVertices)
     {
         Debug.Log("Create mesh with "+ newVertices.Count+" verts");
-
-        Vector3 planeNormal = planeRotation * Vector3.up;
-
         
-
+        Vector3 planeNormal = planeRotation * Vector3.up;
+        
         int planePolygonCount = newVertices.Count;
 
         // The following code converts a polygon to a mesh with two polygons, inner
