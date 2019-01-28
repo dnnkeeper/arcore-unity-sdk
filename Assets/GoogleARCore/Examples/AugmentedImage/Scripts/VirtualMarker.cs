@@ -23,6 +23,11 @@ public class VirtualMarker : MonoBehaviour
 
 #if UNITY_EDITOR
 
+    private void Reset()
+    {
+        UpdateImage();
+    }
+
     [ContextMenu("UpdateImageByIndex")]
     public void UpdateImage()
     {
@@ -31,6 +36,8 @@ public class VirtualMarker : MonoBehaviour
 
     public void UpdateImage(int idx)
     {
+        //var imageDatabase = FindObjectOfType<ARCoreSession>().SessionConfig.AugmentedImageDatabase;
+
         var imageGameObject = transform.Find("MarkerRenderer");
         if (imageGameObject == null)
         {

@@ -49,7 +49,7 @@ namespace GoogleARCore.Examples.AugmentedImage
         /// <summary>
         /// The Unity Update method.
         /// </summary>
-        public void Update()
+        public void LateUpdate()
         {
             // Exit the app when the 'back' button is pressed.
             if (Input.GetKey(KeyCode.Escape))

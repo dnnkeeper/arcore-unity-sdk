@@ -52,7 +52,12 @@ namespace GoogleARCore.Examples.AugmentedImage
         private void Start()
         {
             if (!Application.isEditor)
+            {
+                SetVirtualSceneActive(false);
                 onZeroMarkers.Invoke();
+            }
+
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             if (cameraTransform == null)
                 cameraTransform = Camera.main.transform;
@@ -65,7 +70,7 @@ namespace GoogleARCore.Examples.AugmentedImage
             var virtualMarkers = GameObject.FindObjectsOfType<VirtualMarker>();
             foreach (var virtualMarker in virtualMarkers)
             {
-                if (session != null && session.SessionConfig.AugmentedImageDatabase == virtualMarker.imageDatabase)
+                if (session != null)// && session.SessionConfig.AugmentedImageDatabase == virtualMarker.imageDatabase)
                 {
                     if (!virtualMarkersDict.ContainsKey(virtualMarker.databaseIndex))
                     {
@@ -137,15 +142,15 @@ namespace GoogleARCore.Examples.AugmentedImage
                     {
                         if (anchor == null)
                         {
-                            var centerPosePosition = deviceTrackerTransform.TransformPoint(image.CenterPose.position);
+                            var centerPosePosition = image.CenterPose.position;//deviceTrackerTransform.TransformPoint(image.CenterPose.position);
 
-                            var centerPoseRotation = deviceTrackerTransform.rotation * image.CenterPose.rotation;
+                            var centerPoseRotation = image.CenterPose.rotation;//deviceTrackerTransform.rotation * image.CenterPose.rotation;
 
                             var pose = new Pose(centerPosePosition, centerPoseRotation);
 
                             anchor = image.CreateAnchor(pose);
 
-                            anchor.transform.parent = deviceTrackerTransform;
+                            //anchor.transform.parent = deviceTrackerTransform;
 
                             //if (globalAnchor != null)
                             //    GameObject.Destroy(globalAnchor.gameObject);
@@ -154,6 +159,13 @@ namespace GoogleARCore.Examples.AugmentedImage
 
                             if (virtualMarkersDict.TryGetValue(image.DatabaseIndex, out VirtualMarker virtualMarker))
                             {
+
+                                var visualizer = virtualMarker.GetComponentInChildren<AugmentedImageVisualizer>();
+                                if (visualizer != null)
+                                {
+                                    visualizer.Image = image;
+                                }
+
                                 //centerPosePosition = image.CenterPose.position - virtualMarker.transform.position; // TransformPoint((image.ExtentX/2f * Vector3.right) + (image.ExtentZ/2f * Vector3.forward));
 
                                 //centerPoseRotation = image.CenterPose.rotation * Quaternion.Inverse(virtualMarker.transform.rotation);
@@ -360,6 +372,9 @@ namespace GoogleARCore.Examples.AugmentedImage
                     if (markersCount == 0)
                     {
                         markersCount = imageAnchors.Count + detectedPlaneAnchors.Count;
+
+                        SetVirtualSceneActive(true);
+
                         onHasMarkers.Invoke();
                     }
                 }
@@ -373,9 +388,19 @@ namespace GoogleARCore.Examples.AugmentedImage
                     if (markersCount != 0)
                     {
                         markersCount = 0;
+                        SetVirtualSceneActive(false);
                         onZeroMarkers.Invoke();
                     }
                 }
+            }
+        }
+
+
+        public void SetVirtualSceneActive(bool b)
+        {
+            foreach(var virtualScene in GameObject.FindGameObjectsWithTag("VirtualScene"))
+            {
+                virtualScene.SetActive(b);
             }
         }
 
