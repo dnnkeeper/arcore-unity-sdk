@@ -70,6 +70,8 @@ namespace GoogleARCore.Examples.Common
             return m_DetectedPlane;
         }
 
+        public Transform normalVizualizerTransform;
+
         /// <summary>
         /// The Unity Awake() method.
         /// </summary>
@@ -77,6 +79,11 @@ namespace GoogleARCore.Examples.Common
         {
             m_Mesh = GetComponent<MeshFilter>().mesh;
             m_MeshRenderer = GetComponent<UnityEngine.MeshRenderer>();
+            normalVizualizerTransform = GameObject.CreatePrimitive(PrimitiveType.Cube).transform;
+            normalVizualizerTransform.localScale = new Vector3(0.01f, 0.01f, 0.2f);
+            normalVizualizerTransform.parent = transform;
+            normalVizualizerTransform.localPosition = Vector3.zero;
+            
         }
 
         /// <summary>
@@ -111,9 +118,11 @@ namespace GoogleARCore.Examples.Common
         public void Initialize(DetectedPlane plane)
         {
             m_DetectedPlane = plane;
-            m_MeshRenderer.material.SetColor("_GridColor", k_PlaneColors[s_PlaneCount++ % k_PlaneColors.Length]);
+            Color col = k_PlaneColors[s_PlaneCount++ % k_PlaneColors.Length];
+            m_MeshRenderer.material.SetColor("_GridColor", col);
             m_MeshRenderer.material.SetFloat("_UvRotation", Random.Range(0.0f, 360.0f));
-
+            if (normalVizualizerTransform != null)
+                normalVizualizerTransform.GetComponent<Renderer>().material.color = col;
             Update();
         }
 
@@ -135,6 +144,8 @@ namespace GoogleARCore.Examples.Common
             m_PlaneCenter = m_DetectedPlane.CenterPose.position;
 
             Vector3 planeNormal = m_DetectedPlane.CenterPose.rotation * Vector3.up;
+
+           
 
             m_MeshRenderer.material.SetVector("_PlaneNormal", planeNormal);
 
@@ -176,6 +187,15 @@ namespace GoogleARCore.Examples.Common
                 m_MeshVertices.Add((scale * d) + m_PlaneCenter);
 
                 m_MeshColors.Add(Color.white);
+            }
+
+            if (normalVizualizerTransform != null)
+            {
+                //normalVizualizerTransform.localPosition = m_MeshVertices[0];
+                normalVizualizerTransform.parent = transform.parent;
+                normalVizualizerTransform.localPosition = m_PlaneCenter;
+                normalVizualizerTransform.rotation = Quaternion.LookRotation(planeNormal);
+                normalVizualizerTransform.position += planeNormal * normalVizualizerTransform.lossyScale.z*0.5f;
             }
 
             m_MeshIndices.Clear();

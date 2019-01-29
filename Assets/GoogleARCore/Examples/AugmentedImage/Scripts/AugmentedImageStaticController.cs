@@ -15,7 +15,9 @@ namespace GoogleARCore.Examples.AugmentedImage
     /// </summary>
     public class AugmentedImageStaticController : MonoBehaviour
     {
-        public bool usePlanes;
+        public bool usePlaneAnchors;
+
+        public bool usePlaneHorizonCorrection;
 
         public Transform offsetOrigin;
 
@@ -128,7 +130,6 @@ namespace GoogleARCore.Examples.AugmentedImage
             // Check that motion tracking is tracking.
             if (Session.Status == SessionStatus.Tracking)
             {
-                
                 // Get updated augmented images for this frame.
                 Session.GetTrackables<AugmentedImage>(updatedAugmentedImages, TrackableQueryFilter.Updated);
 
@@ -150,25 +151,17 @@ namespace GoogleARCore.Examples.AugmentedImage
 
                             anchor = image.CreateAnchor(pose);
 
-                            //anchor.transform.parent = deviceTrackerTransform;
-
-                            //if (globalAnchor != null)
-                            //    GameObject.Destroy(globalAnchor.gameObject);
-
-                            //globalAnchor = Session.CreateAnchor(pose);
-
                             if (virtualMarkersDict.TryGetValue(image.DatabaseIndex, out VirtualMarker virtualMarker))
                             {
+                                lastTrackedAnchor = anchor;
+
+                                lastTrackedMarker = virtualMarker;
 
                                 var visualizer = virtualMarker.GetComponentInChildren<AugmentedImageVisualizer>();
                                 if (visualizer != null)
                                 {
                                     visualizer.Image = image;
                                 }
-
-                                //centerPosePosition = image.CenterPose.position - virtualMarker.transform.position; // TransformPoint((image.ExtentX/2f * Vector3.right) + (image.ExtentZ/2f * Vector3.forward));
-
-                                //centerPoseRotation = image.CenterPose.rotation * Quaternion.Inverse(virtualMarker.transform.rotation);
 
                                 if (recognizedImageOriginTransform != null)
                                 {
@@ -179,35 +172,13 @@ namespace GoogleARCore.Examples.AugmentedImage
                                         recognizedImageOriginTransform.parent = anchor.transform;
                                         recognizedImageOriginTransform.transform.localPosition = -virtualMarker.transform.position;//image.CenterPose.position;
                                         recognizedImageOriginTransform.transform.localRotation = Quaternion.Inverse(virtualMarker.transform.rotation);
-                                        //image.CenterPose.rotation;
-                                        //cameraTransform.parent = tracker.transform;
-                                        //cameraTransform.localPosition = Vector3.zero;
-                                        //cameraTransform.localRotation = Quaternion.identity;
-                                        //deviceTrackerTransform.SetPositionAndRotation(recognizedImageOriginTransform.InverseTransformPoint(deviceTrackerTransform.position), Quaternion.Inverse(recognizedImageOriginTransform.rotation) * deviceTrackerTransform.rotation);
-
-
                                     }
                                 }
-
                             }
 
                             imageAnchors.Add(image, anchor);
 
-                            //lastTrackedIdx = image.DatabaseIndex;
-                            if (virtualMarkersDict.TryGetValue(image.DatabaseIndex, out VirtualMarker virtualSceneMarker))
-                            {
-                                lastTrackedAnchor = anchor;
-
-                                lastTrackedMarker = virtualSceneMarker;
-                            }
-
                             SetMarkerActive(image.DatabaseIndex, true);
-
-                            //Quaternion localRot = Quaternion.Inverse(anchor.transform.rotation) * deviceTrackerTransform.rotation;
-
-                            //Vector3 localPos = anchor.transform.InverseTransformPoint(deviceTrackerTransform.position);
-
-                            //deviceTrackerTransform.SetPositionAndRotation(localPos, localRot);
                         }
                         else
                         {
@@ -249,24 +220,8 @@ namespace GoogleARCore.Examples.AugmentedImage
                         GameObject.Destroy(anchor.gameObject);
                     }
 
-                    //if (anchor != null)
-                    //{
-                    //    var localRot = Quaternion.Inverse(tracker.originPose.rotation) * anchor.transform.rotation;
-
-                    //    var rot = localRot.eulerAngles;
-
-                    //    rot.x = virtualSceneMarker.transform.rotation.eulerAngles.x;
-
-                    //    rot.y = virtualSceneMarker.transform.rotation.eulerAngles.y;
-
-                    //    rot.z = virtualSceneMarker.transform.rotation.eulerAngles.z;
-
-                    //    anchor.transform.localRotation = Quaternion.Euler(rot);
-                    //}
-
                     hasAnyTrackedImages |= isTracked;
                 }
-                
                
                 // Iterate over planes found in this frame and instantiate corresponding GameObjects to visualize them.
                 Session.GetTrackables<DetectedPlane>(m_NewPlanes, TrackableQueryFilter.Updated);
@@ -281,13 +236,18 @@ namespace GoogleARCore.Examples.AugmentedImage
                         if (lastTrackedMarker != null && lastTrackedAnchor != null)
                         {
                             Vector3 eulerAnchorRotation = lastTrackedAnchor.transform.rotation.eulerAngles;
-                            if (detectedPlane.PlaneType == DetectedPlaneType.HorizontalUpwardFacing)
+                            Vector3 virtualMarkerRotation = lastTrackedMarker.transform.rotation.eulerAngles;
+                            if (usePlaneHorizonCorrection && detectedPlane.PlaneType == DetectedPlaneType.HorizontalUpwardFacing && (Mathf.Abs(virtualMarkerRotation.x) < 1f && Mathf.Abs(virtualMarkerRotation.z) < 1f))
                             {
                                 eulerAnchorRotation.x = detectedPlane.CenterPose.rotation.eulerAngles.x;
 
                                 eulerAnchorRotation.z = detectedPlane.CenterPose.rotation.eulerAngles.z;
 
                                 Debug.LogWarning("detectedPlane Angle diff: " + (detectedPlane.CenterPose.rotation.eulerAngles - lastTrackedAnchor.transform.rotation.eulerAngles));
+
+                                lastTrackedAnchor.transform.rotation = Quaternion.LookRotation( Vector3.Cross(detectedPlane.CenterPose.rotation * Vector3.up, lastTrackedAnchor.transform.right), detectedPlane.CenterPose.rotation * Vector3.up);
+
+                                Debug.LogWarning("corrected Angle diff: " + (detectedPlane.CenterPose.rotation.eulerAngles - lastTrackedAnchor.transform.rotation.eulerAngles));
                             }
 
                             anchor = detectedPlane.CreateAnchor(new Pose(lastTrackedAnchor.transform.position, Quaternion.Euler(eulerAnchorRotation)));
@@ -314,7 +274,7 @@ namespace GoogleARCore.Examples.AugmentedImage
                             //newInfo.GetComponent<Text>().text = planeObject.name+" "+planeObject.transform.rotation.eulerAngles;
                             //newInfo.SetActive(true);
 
-                            if (usePlanes)
+                            if (usePlaneAnchors)
                                 lastTrackedAnchor = anchor;
                         }
 
@@ -344,18 +304,7 @@ namespace GoogleARCore.Examples.AugmentedImage
                     //Vector3 localPos = lastTrackedAnchor.transform.InverseTransformPoint(tracker.transform.position);
 
                     //if (virtualMarkersDict.TryGetValue(lastTrackedIdx, out VirtualMarker virtualSceneMarker))
-                    if (lastTrackedMarker != null)
-                    {
-                        offsetOrigin.SetPositionAndRotation(
-                                            lastTrackedMarker.transform.TransformPoint(lastTrackedAnchor.transform.InverseTransformPoint(deviceTrackerTransform.position)),
-                                            lastTrackedMarker.transform.rotation * (Quaternion.Inverse(lastTrackedAnchor.transform.rotation) * deviceTrackerTransform.rotation));
-                        
-                        //cameraTransform.position = lastTrackedMarker.transform.TransformPoint(localPos);
-                        cameraTransform.localPosition = tracker.transform.localPosition;
-
-                        //cameraTransform.rotation = lastTrackedMarker.transform.rotation * localRot;
-                        cameraTransform.localRotation = tracker.transform.localRotation;
-                    }
+                   
                 }
             }
 
@@ -395,6 +344,41 @@ namespace GoogleARCore.Examples.AugmentedImage
             }
         }
 
+        // callback to be called before any camera starts rendering
+        public void MyPreRender(Camera cam)
+        {
+            SyncCameraWithTracker();
+        }
+
+        public void OnEnable()
+        {
+            // register the callback when enabling object
+            Camera.onPreRender += MyPreRender;
+        }
+
+        public void OnDisable()
+        {
+            // remove the callback when disabling object
+            Camera.onPreRender -= MyPreRender;
+        }
+        
+        void SyncCameraWithTracker()
+        {
+            if (lastTrackedMarker != null && lastTrackedAnchor != null)
+            {
+                offsetOrigin.SetPositionAndRotation(
+                                    lastTrackedMarker.transform.TransformPoint(lastTrackedAnchor.transform.InverseTransformPoint(deviceTrackerTransform.position)),
+                                    lastTrackedMarker.transform.rotation * (Quaternion.Inverse(lastTrackedAnchor.transform.rotation) * deviceTrackerTransform.rotation));
+            }
+
+            //cameraTransform.position = lastTrackedMarker.transform.TransformPoint(localPos);
+            cameraTransform.localPosition = tracker.transform.localPosition;
+            //Vector3.Lerp(cameraTransform.localPosition, tracker.transform.localPosition, Time.deltaTime * 10f);
+
+            //cameraTransform.rotation = lastTrackedMarker.transform.rotation * localRot;
+            cameraTransform.localRotation = tracker.transform.localRotation;
+            //Quaternion.Lerp(cameraTransform.localRotation, tracker.transform.localRotation, Time.deltaTime * 10f);
+        }
 
         public void SetVirtualSceneActive(bool b)
         {
@@ -441,38 +425,10 @@ namespace GoogleARCore.Examples.AugmentedImage
 
         private void OnGUI()
         {
+            GUILayout.Space(Screen.height*0.5f);
 
             GUILayout.Label(Session.Status.ToString());
-            //GUILayout.Label("OriginPose = "+tracker.originPose.position.ToString());
-            //GUILayout.Label("tpd.transform.position  = "+tracker.transform.parent.position.ToString());
-
-            //if (originPoseTransform != null)
-            //{
-            //    originPoseTransform.position = tpd.originPose.position;
-            //    originPoseTransform.rotation = tpd.originPose.rotation;
-            //}
-
-            //GUILayout.Label("FOV " + Camera.main.fieldOfView);
-
-            //GUILayout.Label("markersCount: " + markersCount);
-
-            //GUILayout.Label("lastTrackedIdx: " + lastTrackedIdx);
-
-            //GUILayout.Label("AnchoredImages:" + imageAnchors.Count);
-
-            //GUILayout.Label("virtualMarkersDict:" + virtualMarkersDict.Count);
-
-            //GUILayout.Label("Origin rotation : " + tracker.originPose.rotation.eulerAngles);
-
-            //GUILayout.Label("parent Pos : " + deviceTrackerTransform.position);
-
-            //GUILayout.Label("tracker Pos : " + tracker.transform.position);
-
-
-            //GUILayout.Label("parent Rot : " + deviceTrackerTransform.rotation.eulerAngles);
-
-            //GUILayout.Label("tracker Rot : " + tracker.transform.rotation.eulerAngles);
-
+            
             GUILayout.Label("hasAnyTrackedImages " + hasAnyTrackedImages);
 
             if (lastTrackedMarker != null)
@@ -480,20 +436,12 @@ namespace GoogleARCore.Examples.AugmentedImage
 
             if (lastTrackedAnchor != null)
             {
-                GUILayout.Label(lastTrackedAnchor.gameObject.name);
+                GUILayout.Label(lastTrackedAnchor.gameObject.name+ " TrackingState: " + lastTrackedAnchor.TrackingState);
                 GUILayout.Label("lastTrackedAnchor " + lastTrackedAnchor.transform.position + " " + lastTrackedAnchor.transform.rotation.eulerAngles);
             }
-            foreach(var VM in virtualMarkersDict.Values)
+            /*foreach(var VM in virtualMarkersDict.Values)
             {
                 GUILayout.Label(VM.name);
-            }
-
-            /*foreach (var anchoredImage in imageAnchors)
-            {
-                var anchor = anchoredImage.Value;
-
-                GUILayout.Label( anchoredImage.Key.ToString()+" rotation : " + anchor.transform.rotation.eulerAngles);
-
             }*/
         }
     }

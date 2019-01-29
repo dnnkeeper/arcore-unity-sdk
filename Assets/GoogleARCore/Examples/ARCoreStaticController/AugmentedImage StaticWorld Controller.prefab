@@ -600,7 +600,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2420065760972019247}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f699ea72e1b1324792805f62f32353b, type: 3}
   m_Name: 
@@ -752,7 +752,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e55de2c94295904bbd33282bb90cca2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  usePlanes: 0
+  usePlaneAnchors: 1
+  usePlaneHorizonCorrection: 1
   offsetOrigin: {fileID: 2420065760059394259}
   lastAnchorTransform: {fileID: 3389647115306302441}
   recognizedImageOriginTransform: {fileID: 0}
