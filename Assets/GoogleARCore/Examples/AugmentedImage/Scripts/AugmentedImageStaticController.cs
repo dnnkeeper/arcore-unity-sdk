@@ -1,5 +1,6 @@
 namespace GoogleARCore.Examples.AugmentedImage
 {
+    using System.Collections;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using GoogleARCore;
@@ -51,8 +52,25 @@ namespace GoogleARCore.Examples.AugmentedImage
         public Dictionary<int, VirtualMarker> virtualMarkersDict 
             = new Dictionary<int, VirtualMarker>();
 
+        ARCoreSession session;
+
+        IEnumerator resetSession()
+        {
+            session.enabled = false;
+
+            Debug.Log("reset ar core session");
+
+            yield return null;
+
+            session.enabled = true;
+        }
+
+        GameObject[] virtualScenes;
+
         private void Start()
         {
+            virtualScenes = GameObject.FindGameObjectsWithTag("VirtualScene");
+
             if (!Application.isEditor)
             {
                 SetVirtualSceneActive(false);
@@ -67,7 +85,7 @@ namespace GoogleARCore.Examples.AugmentedImage
             if (tracker == null)
                 tracker = FindObjectOfType<TrackedPoseDriver>();
 
-            var session = FindObjectOfType<ARCoreSession>();
+            session = FindObjectOfType<ARCoreSession>();
             
             var virtualMarkers = GameObject.FindObjectsOfType<VirtualMarker>();
             foreach (var virtualMarker in virtualMarkers)
@@ -156,6 +174,8 @@ namespace GoogleARCore.Examples.AugmentedImage
                                 lastTrackedAnchor = anchor;
 
                                 lastTrackedMarker = virtualMarker;
+
+                                
 
                                 var visualizer = virtualMarker.GetComponentInChildren<AugmentedImageVisualizer>();
                                 if (visualizer != null)
@@ -347,7 +367,9 @@ namespace GoogleARCore.Examples.AugmentedImage
         // callback to be called before any camera starts rendering
         public void MyPreRender(Camera cam)
         {
+#if !UNITY_EDITOR
             SyncCameraWithTracker();
+#endif
         }
 
         public void OnEnable()
@@ -382,7 +404,7 @@ namespace GoogleARCore.Examples.AugmentedImage
 
         public void SetVirtualSceneActive(bool b)
         {
-            foreach(var virtualScene in GameObject.FindGameObjectsWithTag("VirtualScene"))
+            foreach(var virtualScene in virtualScenes) //GameObject.FindGameObjectsWithTag("VirtualScene"))
             {
                 virtualScene.SetActive(b);
             }
@@ -423,6 +445,7 @@ namespace GoogleARCore.Examples.AugmentedImage
             }
         }
 
+#if UNITY_EDITOR
         private void OnGUI()
         {
             GUILayout.Space(Screen.height*0.5f);
@@ -444,6 +467,6 @@ namespace GoogleARCore.Examples.AugmentedImage
                 GUILayout.Label(VM.name);
             }*/
         }
+#endif
     }
-
 }
