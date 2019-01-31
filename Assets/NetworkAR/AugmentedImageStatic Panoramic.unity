@@ -173,7 +173,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &93698001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,8 +195,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 93698000}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 27, y: 27, z: 27}
+  m_LocalRotation: {x: 0.500003, y: 0.5000013, z: 0.49999723, w: -0.49999848}
+  m_LocalPosition: {x: -2.1026, y: 1.0721, z: 0.96}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2083150446}
@@ -207,7 +207,7 @@ Transform:
   - {fileID: 1961843366}
   m_Father: {fileID: 0}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 270, y: 0, z: -90.00001}
 --- !u!1 &110207618
 GameObject:
   m_ObjectHideFlags: 0
@@ -2873,6 +2873,16 @@ PrefabInstance:
     - target: {fileID: 4961995126088916966, guid: 3b4a806cf43bf1245bef43336aad1dbe,
         type: 3}
       propertyPath: onZeroMarkers.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4961995126088916966, guid: 3b4a806cf43bf1245bef43336aad1dbe,
+        type: 3}
+      propertyPath: usePlaneAnchors
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4961995126088916966, guid: 3b4a806cf43bf1245bef43336aad1dbe,
+        type: 3}
+      propertyPath: usePlaneHorizonCorrection
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

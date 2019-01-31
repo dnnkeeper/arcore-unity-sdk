@@ -388,6 +388,26 @@ namespace GoogleARCore.Examples.AugmentedImage
         {
             if (lastTrackedMarker != null && lastTrackedAnchor != null)
             {
+                var centerPoseRotationEuler = lastTrackedAnchor.transform.eulerAngles;
+                var virtualMarkerRotationEuler = lastTrackedMarker.transform.rotation.eulerAngles;
+
+                if (Mathf.Abs(virtualMarkerRotationEuler.x) > 45f || Mathf.Abs(virtualMarkerRotationEuler.z) > 45f)
+                {
+
+                }
+                else
+                {
+                    lastTrackedAnchor.transform.rotation = Quaternion.Euler(virtualMarkerRotationEuler.x, centerPoseRotationEuler.y, virtualMarkerRotationEuler.z);
+
+                    //centerPoseRotationEuler.x = 0f;
+                    //centerPoseRotationEuler.z = 0f;
+                }
+                //centerPoseRotationEuler.x = virtualMarkerRotationEuler.x;
+                //centerPoseRotationEuler.z = virtualMarkerRotationEuler.z;
+                //lastTrackedAnchor.transform.rotation = Quaternion.Euler(centerPoseRotationEuler);
+
+                //Quaternion.Euler(0, centerPoseRotationEuler.y, 0f) * Quaternion.Euler(virtualMarkerRotationEuler.x, 0, virtualMarkerRotationEuler.z);
+
                 offsetOrigin.SetPositionAndRotation(
                                     lastTrackedMarker.transform.TransformPoint(lastTrackedAnchor.transform.InverseTransformPoint(deviceTrackerTransform.position)),
                                     lastTrackedMarker.transform.rotation * (Quaternion.Inverse(lastTrackedAnchor.transform.rotation) * deviceTrackerTransform.rotation));

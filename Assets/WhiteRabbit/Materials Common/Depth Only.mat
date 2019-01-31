@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Depth Only
-  m_Shader: {fileID: 4800000, guid: 6b324086fbe1845428c4856e9ebc2e69, type: 3}
+  m_Shader: {fileID: 4800000, guid: eea3168d181161544847e6376e9f6907, type: 3}
   m_ShaderKeywords: _GLOSSINESS_FROM_BASE_ALPHA _SPECULAR_COLOR
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
