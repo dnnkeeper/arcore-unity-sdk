@@ -114,10 +114,5 @@ namespace GoogleARCore
             }
         }
 
-        private void OnGUI()
-        {
-            GUILayout.Space(100f);
-            GUILayout.Label("fov_y: "+ Mathf.Atan(1 / prjMat[5]) * 2f * Mathf.Rad2Deg);
-        }
     }
 }

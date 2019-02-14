@@ -70,7 +70,9 @@ namespace GoogleARCore.Examples.Common
             return m_DetectedPlane;
         }
 
-        public Transform normalVizualizerTransform;
+        public bool showNormal;
+
+        Transform normalVizualizerTransform;
 
         /// <summary>
         /// The Unity Awake() method.
@@ -79,11 +81,13 @@ namespace GoogleARCore.Examples.Common
         {
             m_Mesh = GetComponent<MeshFilter>().mesh;
             m_MeshRenderer = GetComponent<UnityEngine.MeshRenderer>();
-            normalVizualizerTransform = GameObject.CreatePrimitive(PrimitiveType.Cube).transform;
-            normalVizualizerTransform.localScale = new Vector3(0.01f, 0.01f, 0.2f);
-            normalVizualizerTransform.parent = transform;
-            normalVizualizerTransform.localPosition = Vector3.zero;
-            
+            if (showNormal)
+            {
+                normalVizualizerTransform = GameObject.CreatePrimitive(PrimitiveType.Cube).transform;
+                normalVizualizerTransform.localScale = new Vector3(0.01f, 0.01f, 0.2f);
+                normalVizualizerTransform.parent = transform;
+                normalVizualizerTransform.localPosition = Vector3.zero;
+            }
         }
 
         /// <summary>
