@@ -68,7 +68,7 @@ public class DetectedPlaneReplicator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (NetworkServer.active)
+        if (!NetworkClient.active || NetworkManager.singleton == null || NetworkServer.active)
             return;
 
         if (vis == null)

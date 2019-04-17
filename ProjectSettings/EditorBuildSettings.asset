@@ -26,10 +26,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/GoogleARCore/Examples/AugmentedImage/Scenes/AugmentedImageStatic.unity
     guid: 920e9d78101335e4abb9fb8aee8a842f
-  - enabled: 0
+  - enabled: 1
     path: Assets/NetworkAR/AugmentedImageStatic Panoramic.unity
     guid: bba3b979d15686e4dbca7b83fe5d3095
-  - enabled: 1
+  - enabled: 0
     path: Assets/GoogleARCore/Examples/HelloAR/Scenes/HelloAR Buildings.unity
     guid: 27740ce0ebbec7c47bdc372db2f6373d
   m_configObjects: {}

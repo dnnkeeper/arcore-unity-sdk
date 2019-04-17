@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 33340294062673050}
   - component: {fileID: 23646549736039258}
   - component: {fileID: 114776205485222536}
+  - component: {fileID: 7035072152923998785}
   m_Layer: 0
   m_Name: DetectedPlaneVisualizer
   m_TagString: Untagged
@@ -90,4 +91,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23e3f20de6c2e405a93736a38f74b0fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showNormal: 0
+--- !u!114 &7035072152923998785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1654175882956584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d5005683b7fe3d40981fd60fc73be39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MeshVertices: []
